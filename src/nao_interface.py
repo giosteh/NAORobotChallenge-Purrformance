@@ -1,12 +1,12 @@
 """
-Interface which provides methods to access and move the NAO robot.
+Class which models the interaction with the NAO robot.
 """
 
 from naoqi import ALProxy
 
 
 class NAOInterface:
-    def __init__(self, ip="127.0.0.1", port=9559):
+    def __init__(self, ip="127.0.0.1", port=40000):
         self.motion = ALProxy("ALMotion", ip, port)
         self.posture = ALProxy("ALRobotPosture", ip, port)
 
@@ -18,4 +18,3 @@ class NAOInterface:
 
     def rest(self):
         self.motion.rest()
-
