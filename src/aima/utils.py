@@ -1,18 +1,67 @@
+from __future__ import print_function, division
+
 """Provides some utilities widely used by other modules"""
 
 import bisect
 import collections
-import collections.abc
 import functools
 import heapq
 import operator
 import os.path
 import random
 from itertools import chain, combinations
-from statistics import mean
-
+# statistics.mean is not available in Python 2.7 by default; provide fallback below
 import numpy as np
 
+# ---------------------------------------------------------------------------
+# Compatibility adjustments for Python 2.7
+
+# collections.abc exists only in Python 3; use collections.Sequence where needed.
+try:
+    # Py3
+    import collections.abc as _collections_abc
+    Sequence = _collections_abc.Sequence
+except Exception:
+    # Py2 fallback
+    Sequence = collections.Sequence
+
+# statistics.mean fallback
+try:
+    from statistics import mean
+except Exception:
+    def mean(data):
+        data = list(data)
+        if len(data) == 0:
+            raise ValueError("mean requires at least one data point")
+        return float(sum(data)) / len(data)
+
+# functools.lru_cache fallback for Python 2.7
+try:
+    from functools import lru_cache  # Py3
+except Exception:
+    # Simple LRU cache implementation using OrderedDict
+    from collections import OrderedDict
+    def lru_cache(maxsize=32):
+        def decorating_function(user_function):
+            cache = OrderedDict()
+
+            @functools.wraps(user_function)
+            def wrapper(*args, **kwargs):
+                key = (args, tuple(sorted(kwargs.items()))) if kwargs else (args, None)
+                if key in cache:
+                    cache.move_to_end(key)
+                    return cache[key]
+                result = user_function(*args, **kwargs)
+                cache[key] = result
+                cache.move_to_end(key)
+                if len(cache) > maxsize:
+                    cache.popitem(last=False)
+                return result
+            return wrapper
+        return decorating_function
+
+# identity
+identity = lambda x: x
 
 # ______________________________________________________________________________
 # Functions on Sequences and Iterables
@@ -20,7 +69,7 @@ import numpy as np
 
 def sequence(iterable):
     """Converts iterable to sequence, if it is not already one."""
-    return iterable if isinstance(iterable, collections.abc.Sequence) else tuple([iterable])
+    return iterable if isinstance(iterable, Sequence) else tuple([iterable])
 
 
 def remove_all(item, seq):
@@ -70,7 +119,11 @@ def product(numbers):
 
 def first(iterable, default=None):
     """Return the first element of an iterable; or default."""
-    return next(iter(iterable), default)
+    it = iter(iterable)
+    try:
+        return next(it)
+    except StopIteration:
+        return default
 
 
 def is_in(elt, seq):
@@ -80,7 +133,7 @@ def is_in(elt, seq):
 
 def mode(data):
     """Return the most common data item. If there are ties, return any one of them."""
-    [(item, count)] = collections.Counter(data).most_common(1)
+    [(item, count_)] = collections.Counter(data).most_common(1)
     return item
 
 
@@ -92,7 +145,10 @@ def power_set(iterable):
 
 def extend(s, var, val):
     """Copy dict s and extend it by setting var to val; return copy."""
-    return {**s, var: val}
+    # Python 2.7 doesn't support dictionary unpacking {**s, var: val}
+    new = s.copy()
+    new[var] = val
+    return new
 
 
 def flatten(seqs):
@@ -101,9 +157,6 @@ def flatten(seqs):
 
 # ______________________________________________________________________________
 # argmin and argmax
-
-identity = lambda x: x
-
 
 def argmin_random_tie(seq, key=identity):
     """Return a minimum element of seq; break ties at random."""
@@ -326,9 +379,9 @@ def step(x):
     return 1 if x >= 0 else 0
 
 
-def gaussian(mean, st_dev, x):
+def gaussian(mean_, st_dev, x):
     """Given the mean and standard deviation of a distribution, it returns the probability of x."""
-    return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.e ** (-0.5 * (float(x - mean) / st_dev) ** 2)
+    return 1 / (np.sqrt(2 * np.pi) * st_dev) * np.e ** (-0.5 * (float(x - mean_) / st_dev) ** 2)
 
 
 def linear_kernel(x, y=None):
@@ -398,10 +451,14 @@ class injection:
         self.new = kwds
 
     def __enter__(self):
-        self.old = {v: globals()[v] for v in self.new}
+        # dict comprehension is supported in Py2.7, but to be conservative we use explicit dict
+        old = {}
+        for v in self.new:
+            old[v] = globals()[v]
+        self.old = old
         globals().update(self.new)
 
-    def __exit__(self, type, value, traceback):
+    def __exit__(self, type_, value, traceback):
         globals().update(self.old)
 
 
@@ -418,7 +475,7 @@ def memoize(fn, slot=None, maxsize=32):
                 setattr(obj, slot, val)
                 return val
     else:
-        @functools.lru_cache(maxsize=maxsize)
+        @lru_cache(maxsize=maxsize)
         def memoized_fn(*args):
             return fn(*args)
 
@@ -439,7 +496,7 @@ def isnumber(x):
 
 def issequence(x):
     """Is x a sequence?"""
-    return isinstance(x, collections.abc.Sequence)
+    return isinstance(x, Sequence)
 
 
 def print_table(table, header=None, sep='   ', numfmt='{}'):
@@ -451,7 +508,10 @@ def print_table(table, header=None, sep='   ', numfmt='{}'):
     justs = ['rjust' if isnumber(x) else 'ljust' for x in table[0]]
 
     if header:
-        table.insert(0, header)
+        # make a shallow copy to avoid modifying original
+        table = [header] + list(table)
+    else:
+        table = list(table)
 
     table = [[numfmt.format(x) if isnumber(x) else x for x in row]
              for row in table]
@@ -611,7 +671,23 @@ class Expr:
     def __repr__(self):
         op = self.op
         args = [str(arg) for arg in self.args]
-        if op.isidentifier():  # f(x) or f(x, y)
+
+        # Python 2.7 str has no isidentifier; provide a fallback
+        def _is_identifier(s):
+            try:
+                return s.isidentifier()
+            except Exception:
+                # rough fallback: starts with letter or underscore and only contains alnum or underscore
+                if not s:
+                    return False
+                if not (s[0].isalpha() or s[0] == '_'):
+                    return False
+                for ch in s:
+                    if not (ch.isalnum() or ch == '_'):
+                        return False
+                return True
+
+        if _is_identifier(op):  # f(x) or f(x, y)
             return '{}({})'.format(op, ', '.join(args)) if args else op
         elif len(args) == 1:  # -x or -(x + 1)
             return op + args[0]
@@ -643,7 +719,9 @@ def subexpressions(x):
     yield x
     if isinstance(x, Expr):
         for arg in x.args:
-            yield from subexpressions(arg)
+            # 'yield from' isn't available in Py2.7; expand explicitly
+            for sub in subexpressions(arg):
+                yield sub
 
 
 def arity(expression):
