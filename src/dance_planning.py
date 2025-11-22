@@ -1,7 +1,3 @@
-"""
-Classes and algorithms to model the robot dancing behavior.
-"""
-
 from aima.search import Problem, astar_search
 from naoqi import ALProxy
 import time
