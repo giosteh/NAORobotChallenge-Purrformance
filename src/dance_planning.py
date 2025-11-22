@@ -4,7 +4,7 @@ import time
 # Importing mandatory and optional moves
 from moves import stand_init, sit, sit_relax, stand, stand_zero, hello, wipe_forehead, crouch
 from moves import arms_opening, diagonal_left, diagonal_right, double_movement, move_backward, move_forward, right_arm
-from moves import rotation_handgun_object, rotation_left_foot, rotation_right_foot, sprinkler, union_arms
+from moves import rotation_handgun_object, rotation_left_foot, rotation_right_foot, sprinkler, union_arms, birthday_dance
 
 
 # ROBOT CONNECTION SETTINGS
@@ -30,7 +30,7 @@ class Move:
         self.compatibles.update(moves_dict)
 
 
-class DanceProblem(Problem):
+class DanceProblem(Problem, object):
     """
     A* planning problem for generating a NAO dance choreography
     """
@@ -57,7 +57,7 @@ class DanceProblem(Problem):
         # State has shape: ([current_move], [remaining_mandatory_moves], [elapsed_time])
         initial = (start_move, self.mandatory_set, 0.0)
 
-        super().__init__(initial, goal=goal_move)
+        super(DanceProblem, self).__init__(initial, goal=goal_move)
 
     def actions(self, state):
         """
@@ -159,7 +159,7 @@ RotationLeftFoot = Move("RotationLeftFoot", rotation_left_foot, execution_time=1
 RotationRightFoot = Move("RotationRightFoot", rotation_right_foot, execution_time=1.7, aesthetic_score=0.6)
 Sprinkler = Move("Sprinkler", sprinkler, execution_time=2.5, aesthetic_score=1.0)
 UnionArms = Move("UnionArms", union_arms, execution_time=1.9, aesthetic_score=0.7)
-
+BirthdayDance = Move("BirthdayDance", birthday_dance, execution_time=3.0, aesthetic_score=0.9)
 
 
 # Compatible moves specification
@@ -328,11 +328,18 @@ UnionArms.add_compatibles({
     Crouch: 3.5
 })
 
+BirthdayDance.add_compatibles({
+    Stand: 2.0,
+    StandZero: 2.0,
+    ArmsOpening: 2.5
+})
+
 
 # Specifying mandatory moves
 MANDATORY_MOVES = [
     Sit, SitRelax, Stand, StandZero, Hello, WipeForehead
 ]
+
 
 
 def execute_choreography(choreography):
@@ -346,7 +353,6 @@ def execute_choreography(choreography):
     for move in choreography:
         move.execute()
     motion.rest()
-
 
 
 # Main execution
