@@ -50,17 +50,13 @@ Open the Choregraphe application on your computer.
 -Start the Virtual Robot:
 In Choregraphe, go to Connection > Connect to virtual robot.
 Note the Port number displayed in the connection window.
-!!!IMPORTANT: In the dance.py file, you need to change PORT value to the your local virtual robot.
-
--Configure the Script:
-Open dance.py.
-Locate the line: IP, PORT = "127.0.0.1", #port_number
-Update the PORT to match the virtual robot port shown in Choregraphe.
 
 -Audio Setup:
 Ensure a file named passin_me_by.mp3 is present in the same directory as the script.
 
 -Run the Script:
 Open your terminal/command prompt and run:
-python dance.py
+python dance.py port_number
+the port_number should be your local robot's port number (ex. 34561)
+
 
