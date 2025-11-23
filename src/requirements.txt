@@ -1,0 +1,7 @@
+aima
+numpy
+naoqi
+pygame
+time
+sys
+os

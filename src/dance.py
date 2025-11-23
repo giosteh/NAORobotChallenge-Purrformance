@@ -2,7 +2,9 @@ from aima.search import Problem, astar_search
 from naoqi import ALProxy
 import pygame
 import time
+import sys
 import os
+
 
 # --- IMPORTING MOVES ---
 from moves import (
@@ -14,15 +16,13 @@ from moves import (
 )
 
 # --- ROBOT CONNECTION SETTINGS ---
-IP, PORT = "127.0.0.1", 37995
+IP, PORT = "127.0.0.1", 9559
 
-# --- SONG CONFIGURATION (ADDED) --- 
-# Setup: Put your mp3 file in the same folder as this script
-SONG_FILENAME = "stayin_alive.mp3"  # <--- ADDED FOR MUSIC: Change this to your file name
+# --- SONG CONFIGURATION ---
+SONG_FILENAME = "passin_me_by.mp3"
 
-# ======================================================================
-#   MOVE CLASS
-# ======================================================================
+
+
 class Move:
     def __init__(self, name, module, execution_time=1.0):
         self.name = name
@@ -31,7 +31,7 @@ class Move:
         self.execution_time = execution_time
 
     def execute(self):
-        print "-> Executing: {} (Duration: {:.2f}s)".format(self.name, self.execution_time)
+        print "-> Executing: {}".format(self.name)
         try:
             self.module.main(IP, PORT)
         except:
@@ -50,29 +50,22 @@ class Move:
         return self.name == other.name
 
 
-# ======================================================================
-#   SEARCH PROBLEM (THE BRAIN)
-# ======================================================================
 class DanceProblem(Problem):
 
     # --- TUNABLE CONSTANTS ---
-    MAX_DURATION = 110.0    # The Robot must finish before this time
+    MAX_DURATION = 120.0    # The Robot must finish before this time
     AESTHETIC_WEIGHT = 10.0 # Higher number = Robot prefers "High" category moves more
     CLUMPING_PENALTY = 50.0 # Penalty to prevent doing Mandatories back-to-back
 
     def __init__(self, start_move, goal_move, mandatory_moves, all_moves_list, partitions):
-        print "   [System] Initializing Search Problem..."
         self.start_move = start_move
         self.goal_move = goal_move
         self.mandatory_set = frozenset(mandatory_moves)
         self.all_mandatory_moves = set(mandatory_moves)
 
-        # Map every move to an ID for indexing scores
         self.all_moves_list = sorted(all_moves_list, key=lambda m: m.name)
         self.move_to_index = {m: i for i, m in enumerate(self.all_moves_list)}
         self.partitions = partitions
-
-        # Counter to track how much A* has explored
         self.nodes_explored = 0
 
         # Initial scores set to 0 for every move
@@ -85,6 +78,7 @@ class DanceProblem(Problem):
             start_move.execution_time,
             initial_scores
         )
+
         super(DanceProblem, self).__init__(initial_state, goal=goal_move)
 
     def actions(self, state):
@@ -99,11 +93,9 @@ class DanceProblem(Problem):
 
         for m in candidates:
             predicted_time = elapsed_time + m.execution_time
-
             # Reject moves that exceed max total time
             if predicted_time > self.MAX_DURATION:
                 continue
-
             # Reject repeating the same move twice
             if m.name == current_move.name:
                 continue
@@ -157,7 +149,6 @@ class DanceProblem(Problem):
 
     def h(self, n):
         move, pending, elapsed_time, scores = n.state
-
         time_needed = sum(m.execution_time for m in pending)
 
         if self.goal_move not in pending:
@@ -178,48 +169,44 @@ class DanceProblem(Problem):
         )
 
 
-# ======================================================================
-#   SETUP
-# ======================================================================
 
-print "1. Loading Moves and Durations..."
-StandInit = Move("StandInit", stand_init, 1.80)
-Sit = Move("Sit", sit, 10.20)
-SitRelax = Move("SitRelax", sit_relax, 6.50)
-Stand = Move("Stand", stand, 2.70)
-StandZero = Move("StandZero", stand_zero, 1.60)
-Crouch = Move("Crouch", crouch, 1.70)
+# --- MOVES SET-UP ---
+StandInit = Move("StandInit", stand_init, 1.50)
+Sit = Move("Sit", sit, 9.50)
+SitRelax = Move("SitRelax", sit_relax, 10.90)
+Stand = Move("Stand", stand, 1.60)
+StandZero = Move("StandZero", stand_zero, 2.00)
+Crouch = Move("Crouch", crouch, 3.00)
 
 Hello = Move("Hello", hello, 4.60)
-WipeForehead = Move("WipeForehead", wipe_forehead, 4.80)
-BlowKisses = Move("BlowKisses", blow_kisses, 4.70)
+WipeForehead = Move("WipeForehead", wipe_forehead, 4.50)
+BlowKisses = Move("BlowKisses", blow_kisses, 5.20)
 Bow = Move("Bow", bow, 4.30)
 ComeOn = Move("ComeOn", come_on, 4.00)
 Wave = Move("Wave", wave, 3.70)
-Glory = Move("Glory", glory, 3.45)
+Glory = Move("Glory", glory, 4.00)
 Clap = Move("Clap", clap, 4.30)
 Joy = Move("Joy", joy, 5.00)
 
 ArmsOpening = Move("ArmsOpening", arms_opening, 4.30)
-DiagonalLeft = Move("DiagonalLeft", diagonal_left, 2.95)
-DiagonalRight = Move("DiagonalRight", diagonal_right, 2.95)
+DiagonalLeft = Move("DiagonalLeft", diagonal_left, 3.50)
+DiagonalRight = Move("DiagonalRight", diagonal_right, 3.50)
 DoubleMovement = Move("DoubleMovement", double_movement, 3.70)
 MoveBackward = Move("MoveBackward", move_backward, 4.00)
 MoveForward = Move("MoveForward", move_forward, 4.00)
-RightArm = Move("RightArm", right_arm, 9.19)
-RotationLeftFoot = Move("RotationLeftFoot", rotation_left_foot, 6.10)
-RotationRightFoot = Move("RotationRightFoot", rotation_right_foot, 6.10)
-UnionArms = Move("UnionArms", union_arms, 9.10)
+RightArm = Move("RightArm", right_arm, 9.00)
+UnionArms = Move("UnionArms", union_arms, 9.00)
+RotationLeftFoot = Move("RotationLeftFoot", rotation_left_foot, 6.00)
+RotationRightFoot = Move("RotationRightFoot", rotation_right_foot, 6.00)
 
-BirthdayDance = Move("BirthdayDance", birthday_dance, 5.0)
-ArmDance = Move("ArmDance", arm_dance, 10.42)
+BirthdayDance = Move("BirthdayDance", birthday_dance, 6.00)
+ArmDance = Move("ArmDance", arm_dance, 10.20)
 DanceMove = Move("DanceMove", dance_move, 6.50)
-TheRobot = Move("TheRobot", the_robot, 6.10)
+TheRobot = Move("TheRobot", the_robot, 5.90)
 StayingAlive = Move("StayingAlive", staying_alive, 5.90)
 Rhythm = Move("Rhythm", rhythm, 3.20)
 PulpFiction = Move("PulpFiction", pulp_fiction, 5.90)
 
-print "2. Categorizing Moves (High/Mid/Low Impact)..."
 
 SET_HIGH = [
     ArmDance, TheRobot, StayingAlive, PulpFiction,
@@ -241,22 +228,20 @@ SET_LOW = [
 PARTITION_MAP = {}
 ALL_MOVES = []
 
-for m in SET_HIGH:
-    PARTITION_MAP[m] = 1.5
-for m in SET_MID:
-    PARTITION_MAP[m] = 0.5
-for m in SET_LOW:
-    PARTITION_MAP[m] = 0.2
+ADD_HIGH, ADD_MID, ADD_LOW = 1.5, 0.5, 0.2
 
+for m in SET_HIGH:
+    PARTITION_MAP[m] = ADD_HIGH
+for m in SET_MID:
+    PARTITION_MAP[m] = ADD_MID
+for m in SET_LOW:
+    PARTITION_MAP[m] = ADD_LOW
+
+# Getting all the moves together
 ALL_MOVES = SET_HIGH + SET_MID + SET_LOW
 
-ADD_CONSTANT = 0.0
-for m in ALL_MOVES:
-    m.execution_time += ADD_CONSTANT
 
-print "3. Building Connection Graph..."
-
-StandInit.add_compatibles([Stand, StandZero, Sit])
+StandInit.add_compatibles([Stand, Sit])
 Sit.add_compatibles([SitRelax, Stand, StandZero])
 SitRelax.add_compatibles([Sit, Stand, StandZero])
 
@@ -309,6 +294,7 @@ for m in complex_moves:
 DoubleMovement.add_compatibles([ArmsOpening, Joy])
 
 
+# Choreography execution function
 def execute_choreography(moves):
     try:
         motion = ALProxy("ALMotion", IP, PORT)
@@ -316,26 +302,30 @@ def execute_choreography(moves):
 
         for m in moves:
             m.execute()
-
         motion.rest()
-
     except Exception as e:
         print "Error: {}".format(e)
 
 
-# ======================================================================
-#   MAIN EXECUTION
-# ======================================================================
+
 if __name__ == "__main__":
-    print "-" * 60
     print "--- STARTING A* CHOREOGRAPHY ENGINE ---"
-    print "-" * 60
+
+    # Allow setting port from command line
+    global PORT
+    if len(sys.argv) > 1:
+        try:
+            PORT = int(sys.argv[1])
+            print "[Config] Port set from command line:", PORT
+        except ValueError:
+            print "[Config] Invalid port provided. Using default:", PORT
+    else:
+        print "[Config] Using default port:", PORT
+
 
     MANDATORY_MOVES = [
-        Sit, Stand, Hello, WipeForehead,
-        SitRelax, StandZero
+        Stand, StandZero, Sit, SitRelax, Hello, WipeForehead
     ]
-
     print "MANDATORY REQUIREMENTS: ", [m.name for m in MANDATORY_MOVES]
 
     problem = DanceProblem(
@@ -375,12 +365,6 @@ if __name__ == "__main__":
         print "-" * 60
 
         move_names = [m.name for m in choreography]
-        missing = [m.name for m in MANDATORY_MOVES if m.name not in move_names]
-
-        if not missing:
-            print "VERIFICATION: All Mandatory Moves are present."
-        else:
-            print "VERIFICATION FAILED: Missing", missing
 
         if os.path.exists(SONG_FILENAME):
             print "\n[Music] Loading: {}".format(SONG_FILENAME)
@@ -398,7 +382,6 @@ if __name__ == "__main__":
         if pygame.mixer.get_init():
             pygame.mixer.music.stop()
             print "[Music] Stopped."
-
     else:
         print "\n[Status] FAILURE: No plan found."
         print "Possible reasons: Time limit too short or incompatible mandatory moves."
