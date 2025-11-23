@@ -57,6 +57,8 @@ Ensure a file named passin_me_by.mp3 is present in the same directory as the scr
 -Run the Script:
 Open your terminal/command prompt and run:
 python dance.py port_number
-the port_number should be your local robot's port number (ex. 34561)
+
+!!!the port_number should be your local robot's port number (ex. 34561)
+
 
 
