@@ -55,6 +55,12 @@ src/
    Note the port number shown (e.g., 51346 or 37995).  
 3. Ensure the file “passin_me_by.mp3” is inside the src folder.  
 4. Open a terminal, navigate to the src folder, and run the script using the port number:  
-   python dance.py <port_number>  
+   `python dance.py <port_number>`  
    Example:  
-   python dance.py 34561
+   `python dance.py 34561`
+
+---
+
+## Link to the video
+
+https://drive.google.com/file/d/1yZ7eIqEYeBgyNDFlBxv_Q3BAAYsyY0ii/view?usp=sharing
