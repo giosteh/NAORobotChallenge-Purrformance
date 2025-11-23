@@ -1,62 +1,60 @@
-NAO Robot Choreography Generator using A* Search
+# NAO Robot Choreography Generator using A* Search
 
-This project utilizes Artificial Intelligence (the A* Search Algorithm) to generate an optimal dance choreography for a NAO robot. The system calculates a sequence of moves that fits within a specific song duration, ensures mandatory moves are performed, and optimizes for aesthetic variety using a custom cost function.
+This project uses Artificial Intelligence (the A* Search Algorithm) to generate an optimal dance choreography for a NAO robot. The system calculates a sequence of moves that fits within the song duration, ensures mandatory moves are included, and optimizes for aesthetic variety using a custom cost function.
 
----Group Members---
+---
 
-Group Name: Purrformance
+## Group Members
 
-Giovanni Stea - giovanni.stea@studio.unibo.it
+**Group Name:** Purrformance
 
-Şimal Yücel - simal.yucel@studio.unibo.it
+- Giovanni Stea – giovanni.stea@studio.unibo.it  
+- Şimal Yücel – simal.yucel@studio.unibo.it
 
----Project Repository---
+---
+
+## Project Repository
 
 https://github.com/giosteh/NAORobotChallenge-Purrformance
 
----Requirements & Libraries---
+---
 
-!!!IMPORTANT: This project requires Python 2.7 because the naoqi SDK is not compatible with Python 3.
+## Requirements & Libraries
 
-Required Modules:
+IMPORTANT: This project requires **Python 2.7** because the **naoqi SDK is not compatible with Python 3**.
 
--naoqi (Aldebaran SDK)
+Required modules:
+- naoqi (Aldebaran SDK)
+- pygame
+- aima-python (included in the project under the “aima” folder)
 
--pygame (Install via: pip install pygame)
+To install pygame:
+pip install pygame
 
-aima-python (The project uses search algorithms from the aimacode/aima-python repository. The aima folder is included in the source code.)
+---
 
----Project Structure---
+## Project Structure
 
-* **LICENSE**: The license file for the project.
-* **README.md**: This documentation file.
-* **presentation.pdf**: The slides explaining the project logic.
-* **src/**: The main source code directory containing:
-    * **dance.py**: The main entry point script. It contains the A* algorithm, the cost function logic, and the choreography execution.
-    * **moves/**: A folder containing the pre-programmed motion primitives for the NAO robot.
-    * **aima/**: A folder containing the AIMA search library used for pathfinding.
-    * **passin_me_by.mp3**: The audio file used for the choreography.
-    * **requirements.txt**: A text file listing the necessary Python dependencies.
+LICENSE  
+README.md  
+presentation.pdf  
+src/  
+• dance.py — main script containing A*, cost function, and choreography execution  
+• moves/ — folder with NAO motion primitives  
+• aima/ — AIMA search library  
+• passin_me_by.mp3 — audio file used for choreography  
+• requirements.txt — dependency list
 
+---
 
----How to Run on Simulated NAO---
+## How to Run on a Simulated NAO Robot
 
--Launch Choregraphe:
-Open the Choregraphe application on your computer.
-
--Start the Virtual Robot:
-In Choregraphe, go to Connection > Connect to virtual robot.
-Note the Port number displayed in the connection window (e.g., 51346 or 37995).
-
--Audio Setup:
-Ensure the file passin_me_by.mp3 is located in the src folder alongside the script.
-
--Run the Script:
-Open your terminal, navigate to the src folder, and run the script passing the port number as an argument:
-
-python dance.py <port_number>
-
-Example:
-
-python dance.py 34561
-
+1. Launch the Choregraphe application.  
+2. Connect to a virtual robot:  
+   Connection → Connect to virtual robot.  
+   Note the port number shown (e.g., 51346 or 37995).  
+3. Ensure the file “passin_me_by.mp3” is inside the src folder.  
+4. Open a terminal, navigate to the src folder, and run the script using the port number:  
+   python dance.py <port_number>  
+   Example:  
+   python dance.py 34561
