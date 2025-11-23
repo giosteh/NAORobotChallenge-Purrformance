@@ -14,7 +14,7 @@ Giovanni Stea - giovanni.stea@studio.unibo.it
 
 ---Project Repository---
 
-[INSERT LINK TO YOUR GITHUB REPOSITORY HERE]
+https://github.com/giosteh/NAORobotChallenge-Purrformance.git
 
 ---Requirements & Libraries---
 
@@ -40,7 +40,7 @@ moves.py: Contains the pre-programmed motion primitives for the NAO robot.
 
 aima/: The folder containing the AIMA search library.
 
-stayin_alive.mp3: The audio file used for the choreography.
+passin_me_by.mp3: The audio file used for the choreography.
 
 ---How to Run on Simulated NAO---
 
@@ -58,8 +58,9 @@ Locate the line: IP, PORT = "127.0.0.1", #port_number
 Update the PORT to match the virtual robot port shown in Choregraphe.
 
 -Audio Setup:
-Ensure a file named stayin_alive.mp3 is present in the same directory as the script.
+Ensure a file named passin_me_by.mp3 is present in the same directory as the script.
 
 -Run the Script:
 Open your terminal/command prompt and run:
 python dance.py
+
