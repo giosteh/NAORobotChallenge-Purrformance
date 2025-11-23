@@ -64,19 +64,13 @@ def main(robotIP, port):
   keys.append([-0.312978, -0.303775, 0.182504])
 
   try:
-    ttsProxy = ALProxy("ALTextToSpeech", robotIP, port)
     motion = ALProxy("ALMotion", robotIP, port)
     motion.angleInterpolation(names, keys, times, True)
-    ttsProxy.say("C'mon, dance with me!")
-  except BaseException, err:
-    print err
-  
-  try:
     postureProxy = ALProxy("ALRobotPosture", robotIP, port)
     postureProxy.goToPosture("Stand", 0.5)
-  except Exception, e:
-    print "Could not create proxy to ALRobotPosture"
-  
+  except BaseException, err:
+	  print err
+
 if __name__ == "__main__":
 	robotIP = "127.0.0.1"
 	port = 9559
