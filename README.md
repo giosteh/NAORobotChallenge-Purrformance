@@ -28,16 +28,15 @@ aima-python (The project uses search algorithms from the aimacode/aima-python re
 
 ---Project Structure---
 
-.
-├── LICENSE
-├── README.md
-├── presentation.pdf
-└── src/
-    ├── aima/                 # AIMA search library
-    ├── moves/                # Folder containing motion primitives
-    ├── dance.py              # Main entry point (A* algorithm, cost function)
-    ├── passin_me_by.mp3      # Audio file for the choreography
-    └── requirements.txt      # Python dependencies
+* **LICENSE**: The license file for the project.
+* **README.md**: This documentation file.
+* **presentation.pdf**: The slides explaining the project logic.
+* **src/**: The main source code directory containing:
+    * **dance.py**: The main entry point script. It contains the A* algorithm, the cost function logic, and the choreography execution.
+    * **moves/**: A folder containing the pre-programmed motion primitives for the NAO robot.
+    * **aima/**: A folder containing the AIMA search library used for pathfinding.
+    * **passin_me_by.mp3**: The audio file used for the choreography.
+    * **requirements.txt**: A text file listing the necessary Python dependencies.
 
 
 ---How to Run on Simulated NAO---
@@ -60,3 +59,4 @@ python dance.py <port_number>
 Example:
 
 python dance.py 34561
+
