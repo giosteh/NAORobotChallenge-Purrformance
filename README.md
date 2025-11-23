@@ -10,15 +10,13 @@ Giovanni Stea - giovanni.stea@studio.unibo.it
 
 Şimal Yücel - simal.yucel@studio.unibo.it
 
-
-
 ---Project Repository---
 
-https://github.com/giosteh/NAORobotChallenge-Purrformance.git
+https://github.com/giosteh/NAORobotChallenge-Purrformance
 
 ---Requirements & Libraries---
 
-!!!This project requires Python 2.7 because the naoqi SDK is not compatible with Python 3.
+!!!IMPORTANT: This project requires Python 2.7 because the naoqi SDK is not compatible with Python 3.
 
 Required Modules:
 
@@ -26,21 +24,21 @@ Required Modules:
 
 -pygame (Install via: pip install pygame)
 
--aima-python:
-
-  The project uses the search algorithms from the aimacode/aima-python repository.
-  
-  Ensure the aima folder is located in the root directory of this project.
+aima-python (The project uses search algorithms from the aimacode/aima-python repository. The aima folder is included in the source code.)
 
 ---Project Structure---
 
-dance.py: The entry point. Defines the A* problem, heuristics, and cost functions.
+.
+├── LICENSE
+├── README.md
+├── presentation.pdf
+└── src/
+    ├── aima/                 # AIMA search library
+    ├── moves/                # Folder containing motion primitives
+    ├── dance.py              # Main entry point (A* algorithm, cost function)
+    ├── passin_me_by.mp3      # Audio file for the choreography
+    └── requirements.txt      # Python dependencies
 
-moves.py: Contains the pre-programmed motion primitives for the NAO robot.
-
-aima/: The folder containing the AIMA search library.
-
-passin_me_by.mp3: The audio file used for the choreography.
 
 ---How to Run on Simulated NAO---
 
@@ -49,16 +47,16 @@ Open the Choregraphe application on your computer.
 
 -Start the Virtual Robot:
 In Choregraphe, go to Connection > Connect to virtual robot.
-Note the Port number displayed in the connection window.
+Note the Port number displayed in the connection window (e.g., 51346 or 37995).
 
 -Audio Setup:
-Ensure a file named passin_me_by.mp3 is present in the same directory as the script.
+Ensure the file passin_me_by.mp3 is located in the src folder alongside the script.
 
 -Run the Script:
-Open your terminal/command prompt and run:
-python dance.py port_number
+Open your terminal, navigate to the src folder, and run the script passing the port number as an argument:
 
-!!!the port_number should be your local robot's port number (ex. 34561)
+python dance.py <port_number>
 
+Example:
 
-
+python dance.py 34561
